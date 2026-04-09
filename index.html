@@ -106,8 +106,8 @@
         }
         .res-label { font-size: 1rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; }
         .res-val-wrapper { display: flex; align-items: baseline; justify-content: center; margin: 10px 0; }
-        .res-unit-inline { font-size: 2rem; font-weight: 800; color: var(--main); margin-right: 2px; }
-        .res-val { font-size: 4.5rem; font-weight: 900; color: var(--main); letter-spacing: -2px; line-height: 1; }
+        .res-unit-inline { font-size: 1.8rem; font-weight: 800; color: var(--main); margin-right: 4px; }
+        .res-val { font-size: 4rem; font-weight: 900; color: var(--main); letter-spacing: -2px; line-height: 1; }
         .res-unit { font-size: 1.2rem; font-weight: 800; color: var(--text-gray); }
 
         .footer-btns { display: flex; gap: 10px; margin-top: 30px; margin-bottom: 20px; }
@@ -150,10 +150,10 @@
     </div>
 
     <div class="result-display">
-        <span class="res-label">You can spend</span>
+        <span class="res-label" id="statusLabel">You can spend</span>
         <div class="res-val-wrapper">
             <span class="res-unit-inline" id="resUnit"></span>
-            <span class="res-val" id="resultVal">0</span>
+            <span class="res-val" id="resultVal">---</span>
         </div>
         <span class="res-unit">Per Day</span>
     </div>
@@ -188,7 +188,14 @@
     const resultVal = document.getElementById('resultVal');
     const resUnit = document.getElementById('resUnit');
 
-    // 戻ってきた時にも強制計算を実行
+    // 読み込み時にUnitを復元
+    window.addEventListener('load', () => {
+        const savedUnit = localStorage.getItem('fc_budget_unit');
+        if (savedUnit) unitInput.value = savedUnit;
+        calculate();
+    });
+
+    // 戻ってきた時にも状態を復元
     window.addEventListener('pageshow', () => {
         calculate();
     });
@@ -201,12 +208,15 @@
         const days = parseInt(daysInput.value);
         const unit = unitInput.value || '';
 
+        // Unitを保存
+        localStorage.setItem('fc_budget_unit', unit);
+
         if (!isNaN(budget) && !isNaN(days) && days > 0) {
             const daily = budget / days;
             resultVal.innerText = formatNumber(daily);
             resUnit.innerText = unit;
         } else {
-            resultVal.innerText = '0';
+            resultVal.innerText = '---';
             resUnit.innerText = '';
         }
 
